@@ -21,7 +21,7 @@ IS_SNAPSHOT?=true
 APACHE_SPARK_VERSION?=1.5.1
 
 ifeq ($(IS_SNAPSHOT),true)
-SNAPSHOT:='-SNAPSHOT'
+SNAPSHOT:=-SNAPSHOT
 endif
 
 USE_VAGRANT?=
@@ -50,7 +50,9 @@ clean-dist:
 
 clean: VM_WORKDIR=/src/toree-kernel
 clean: clean-dist
-	$(call RUN,$(ENV_OPTS) sbt clean)
+	-$(call RUN,$(ENV_OPTS) sbt clean)
+	-rm -rf `find */target/`
+	-rm -rf target/
 
 kernel/target/scala-2.10/$(ASSEMBLY_JAR): VM_WORKDIR=/src/toree-kernel
 kernel/target/scala-2.10/$(ASSEMBLY_JAR): ${shell find ./*/src/main/**/*}
