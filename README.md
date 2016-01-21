@@ -69,7 +69,7 @@ Branch                       | Apache Spark Version
 [branch-0.1.4][branch-0.1.4] | 1.4.1
 [branch-0.1.3][branch-0.1.3] | 1.3.1
 
-Please note that for the most part, new features to Spark Kernel will only be added to the `master` branch.
+Please note that for the most part, new features will mainly be added to the `master` branch.
 
 Resources
 =========
@@ -94,6 +94,6 @@ We are working on porting our documentation into Apache. For the time being, you
 [vagrant]: https://www.vagrantup.com/
 [mail-list]: mailto:dev@toree.incubator.apache.org
 
-[master]: https://github.com/ibm-et/spark-kernel
-[branch-0.1.4]: https://github.com/ibm-et/spark-kernel/tree/branch-0.1.4
-[branch-0.1.3]: https://github.com/ibm-et/spark-kernel/tree/branch-0.1.3
+[master]: https://github.com/apache/incubator-toree
+[branch-0.1.4]: https://github.com/apache/incubator-toree/tree/branch-0.1.4
+[branch-0.1.3]: https://github.com/apache/incubator-toree/tree/branch-0.1.3
