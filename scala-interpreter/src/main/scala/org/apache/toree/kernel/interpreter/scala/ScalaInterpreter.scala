@@ -156,6 +156,9 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
           logger.debug(s"Ignoring rebinding of $termName")
       }
     })
+
+    bindSparkContext()
+    bindSqlContext()
   }
 
   protected def reinitializeSymbols(): Unit = {
@@ -204,8 +207,8 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
   override def init(kernel: KernelLike): Interpreter = {
     bindKernelVariable(kernel)
-    bindSparkContext(kernel.sparkContext)
-    bindSqlContext(kernel.sqlContext)
+    bindSparkContext()
+    bindSqlContext()
 
     this
   }
@@ -514,33 +517,28 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
     sparkIMain.beQuietDuring[T](body)
   }
 
-  def bindSparkContext(sparkContext: SparkContext) = {
+  def bindSparkContext() = {
     val bindName = "sc"
 
     doQuietly {
       logger.debug(s"Binding SparkContext into interpreter as $bindName")
-      interpret(s"""def ${bindName}: ${classOf[SparkContext].getName} = kernel.sparkContext""")
 
-      // NOTE: This is needed because interpreter blows up after adding
+      // NOTE: sc.emptyRDD.collect() is needed because interpreter blows up after adding
       //       dependencies to SparkContext and Interpreter before the
       //       cluster has been used... not exactly sure why this is the case
       // TODO: Investigate why the cluster has to be initialized in the kernel
       //       to avoid the kernel's interpreter blowing up (must be done
       //       inside the interpreter)
-      logger.debug("Initializing Spark cluster in interpreter")
 
-      doQuietly {
-        interpret(Seq(
-          "val $toBeNulled = {",
-          "  var $toBeNulled = sc.emptyRDD.collect()",
-          "  $toBeNulled = null",
-          "}"
-        ).mkString("\n").trim())
-      }
+      interpret(
+        s"""def ${bindName}: ${classOf[SparkContext].getName} = {
+           val sc = kernel.sparkContext
+           sc
+        }""".stripMargin)
     }
   }
 
-  def bindSqlContext(sqlContext: SQLContext): Unit = {
+  def bindSqlContext(): Unit = {
     val bindName = "sqlContext"
 
     doQuietly {
@@ -548,8 +546,8 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
       //       is limited to the Scala interpreter interface
       logger.debug(s"Binding SQLContext into interpreter as $bindName")
 
-      interpret(s"""def ${bindName}: ${classOf[SQLContext].getName} = kernel.sqlContext""")
-      sqlContext
+      interpret(s"""def ${bindName}: ${classOf[SQLContext].getName} = org.apache.spark.sql.SQLContext.getOrCreate(sc)""")
+
     }
   }
 

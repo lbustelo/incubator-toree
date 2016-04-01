@@ -432,7 +432,20 @@ class Kernel (
     interpreterManager.interpreters.get(name)
   }
 
-  override def sparkContext: SparkContext = _sparkContext
+  override def sparkContext: SparkContext = {
+    if(!config.getBoolean("nosparkcontext")) {
+      if( _sparkContext == null ){
+        sparkConf
+        //TODO: no way to tell if the context is stopped
+        createSparkContext(new SparkConf().setAppName("Toree"))
+      }
+      else
+        _sparkContext
+    }
+    else{
+      null
+    }
+  }
   override def sparkConf: SparkConf = _sparkConf
   override def javaSparkContext: JavaSparkContext = _javaSparkContext
   override def sqlContext: SQLContext = _sqlContext
