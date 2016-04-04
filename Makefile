@@ -141,7 +141,10 @@ pip-release: dist
 	@$(DOCKER) $(IMAGE) python setup.py sdist --dist-dir=.
 	@$(DOCKER) -p 8888:8888 --user=root  $(IMAGE) bash -c	'pip install toree-$(VERSION).tar.gz && jupyter toree install'
 
-bin-release: dist
+audit:
+	@etc/tools/./check-licenses 
+
+bin-release: dist 
 	@(cd dist; tar -cvzf toree-$(VERSION)-binary-release.tar.gz toree)
 
 release: DOCKER_WORKDIR=/srv/toree/dist
