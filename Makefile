@@ -108,8 +108,8 @@ dev: SUSPEND=n
 dev: DEBUG_PORT=5005
 dev: .example-image dist
 	@$(DOCKER) \
-		-e SPARK_OPTS="--master=local[4] --driver-java-options=-agentlib:jdwp=transport=dt_socket,server=y,suspend=$(SUSPEND),address=5005" \
-		-v `pwd`/etc/kernel.json:/usr/local/share/jupyter/kernels/toree/kernel.json \
+		-e SPARK_OPTS="--jars /srv/toree/etc/eclair/eclairjs-nashorn-0.5-SNAPSHOT-jar-with-dependencies.jar --master=local[4] --driver-java-options=-agentlib:jdwp=transport=dt_socket,server=y,suspend=$(SUSPEND),address=5005" \
+		-v `pwd`/etc/eclair/kernel.json:/usr/local/share/jupyter/kernels/toree/kernel.json \
 		-p $(DEBUG_PORT):5005 -p 8888:8888 \
 		--user=root  $(EXAMPLE_IMAGE) \
 		bash -c "cp -r /srv/toree/dist/toree/* /usr/local/share/jupyter/kernels/toree/. \
