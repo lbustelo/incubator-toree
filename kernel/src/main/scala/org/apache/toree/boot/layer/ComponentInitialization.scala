@@ -176,8 +176,6 @@ trait StandardComponentInitialization extends ComponentInitialization {
 
         // TODO: Construct class server outside of SparkIMain
         logger.warn("Unable to control initialization of REPL class server!")
-        logger.info("REPL Class Server Uri: " + scalaInterpreter.classServerURI)
-        conf.set("spark.repl.class.uri", scalaInterpreter.classServerURI)
 
         theConf
       }

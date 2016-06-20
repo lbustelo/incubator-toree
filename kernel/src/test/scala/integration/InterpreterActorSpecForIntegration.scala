@@ -69,7 +69,6 @@ class InterpreterActorSpecForIntegration extends TestKit(
     interpreter.init(mock[KernelLike])
 
     interpreter.doQuietly({
-      conf.set("spark.repl.class.uri", interpreter.classServerURI)
       //context = new SparkContext(conf) with NoSparkLogging
       //context = SparkContextProvider.sparkContext
       //interpreter.bind(

@@ -90,7 +90,7 @@ object Common {
 
   private lazy val sparkVersion = {
     val sparkEnvironmentVariable = "APACHE_SPARK_VERSION"
-    val defaultSparkVersion = "1.6.1"
+    val defaultSparkVersion = "2.0.0-SNAPSHOT"
 
     val _sparkVersion = Properties.envOrNone(sparkEnvironmentVariable)
 
@@ -134,7 +134,9 @@ object Common {
     version := buildVersion,
     scalaVersion := buildScalaVersion,
     isSnapshot := snapshot,
-    resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers ++= Seq(
+      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "Apache Snapshots" at "http://repository.apache.org/snapshots/"),
     // Test dependencies
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.6" % "test", // Apache v2
@@ -187,7 +189,8 @@ object Common {
 
     // Scala-based options for compilation
     scalacOptions ++= Seq(
-      "-deprecation", "-unchecked", "-feature",
+      //      "-deprecation",
+      "-unchecked", "-feature",
       //"-Xlint", // Scala 2.11.x only
       "-Xfatal-warnings",
       "-Ywarn-all",

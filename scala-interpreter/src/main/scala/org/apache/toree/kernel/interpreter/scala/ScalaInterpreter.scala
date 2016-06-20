@@ -510,11 +510,6 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
     this
   }
 
-  def classServerURI = {
-    require(sparkIMain != null)
-    sparkIMain.classServerUri
-  }
-
   override def doQuietly[T](body: => T): T = {
     require(sparkIMain != null)
     sparkIMain.beQuietDuring[T](body)

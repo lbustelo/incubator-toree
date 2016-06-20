@@ -45,6 +45,7 @@ class DataFrameConverter extends Plugin with LogLike {
   }
 
   private def convertToHtml(df: DataFrame, limit: Int = 10): String = {
+      import df.sqlContext.implicits._
       val columnFields = df.schema.fieldNames.map(columnName => {
         s"<th>${columnName}</th>"
       }).reduce(_ + _)
@@ -59,6 +60,7 @@ class DataFrameConverter extends Plugin with LogLike {
   }
 
   private def convertToJson(df: DataFrame, limit: Int = 10): String = {
+    import df.sqlContext.implicits._
     JsObject(Seq(
       "columns" -> Json.toJson(df.schema.fieldNames),
       "rows" -> Json.toJson(df.map(row =>
@@ -67,6 +69,7 @@ class DataFrameConverter extends Plugin with LogLike {
   }
 
   private def convertToCsv(df: DataFrame, limit: Int = 10): String = {
+      import df.sqlContext.implicits._
       val headers = df.schema.fieldNames.reduce(_ + "," + _)
       val rows = df.map(row => {
         row.toSeq.map(field => field.toString).reduce(_ + "," + _)
