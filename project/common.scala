@@ -20,7 +20,7 @@ import sbt.Keys._
 import sbtbuildinfo._
 import sbtbuildinfo.BuildInfoKeys._
 import scoverage.ScoverageSbtPlugin
-import coursier.Keys._
+//import coursier.Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import scala.util.{Try, Properties}
 
@@ -32,7 +32,7 @@ object Common {
   private val gpgPassword               = Properties.envOrElse("GPG_PASSWORD","")
   private val buildOrganization         = "org.apache.toree.kernel"
   private val buildVersion              = if (snapshot) s"$versionNumber-SNAPSHOT" else versionNumber
-  private val buildScalaVersion         = "2.10.4"
+  private val buildScalaVersion         = "2.10.6"
 
   val buildInfoSettings = Seq(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, "sparkVersion" -> sparkVersion),
@@ -134,9 +134,11 @@ object Common {
     version := buildVersion,
     scalaVersion := buildScalaVersion,
     isSnapshot := snapshot,
+    updateOptions := updateOptions.value.withCachedResolution(true),
     resolvers ++= Seq(
-      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
-      "Apache Snapshots" at "http://repository.apache.org/snapshots/"),
+      "Apache Snapshots" at "http://repository.apache.org/snapshots/",
+      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+    ),
     // Test dependencies
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.6" % "test", // Apache v2
@@ -167,17 +169,17 @@ object Common {
     mappings in packageBin in Compile += file("LICENSE") -> "LICENSE",
     mappings in packageBin in Compile += file("NOTICE") -> "NOTICE",
 
-    coursierVerbosity := {
-      val level = Try(Integer.valueOf(Properties.envOrElse(
-        "TOREE_RESOLUTION_VERBOSITY", "1")
-      ).toInt).getOrElse(1)
-
-      scala.Console.out.println(
-        s"[INFO] Toree Resolution Verbosity Level = $level"
-      )
-
-      level
-    },
+//    coursierVerbosity := {
+//      val level = Try(Integer.valueOf(Properties.envOrElse(
+//        "TOREE_RESOLUTION_VERBOSITY", "1")
+//      ).toInt).getOrElse(1)
+//
+//      scala.Console.out.println(
+//        s"[INFO] Toree Resolution Verbosity Level = $level"
+//      )
+//
+//      level
+//    },
 
     scalacOptions in (Compile, doc) ++= Seq(
       // Ignore packages (for Scaladoc) not from our project
@@ -189,7 +191,7 @@ object Common {
 
     // Scala-based options for compilation
     scalacOptions ++= Seq(
-      //      "-deprecation",
+      "-deprecation",
       "-unchecked", "-feature",
       //"-Xlint", // Scala 2.11.x only
       "-Xfatal-warnings",

@@ -47,7 +47,7 @@ class SqlService(private val kernel: KernelLike) extends BrokerService {
    */
   override def submitCode(code: Code, kernelOutputStream: Option[OutputStream]): Future[CodeResults] = future {
     println(s"Executing: '${code.trim}'")
-    val result = kernel.sqlContext.sql(code.trim)
+    val result = kernel.sparkSession.sql(code.trim)
 
     // TODO: There is an internal method used for show called showString that
     //       supposedly is only for the Python API, look into why
