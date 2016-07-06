@@ -87,8 +87,8 @@ repeat {
     sc <- callJMethod(kernel, "javaSparkContext")
     if(!is.null(sc)) {
       assign("sc", sc, .runnerEnv)
-      sqlContext <- callJMethod(kernel, "sqlContext")
-      assign("sqlContext", sqlContext, .runnerEnv)
+      spark <- callJMethod(kernel, "sparkSession")
+      assign("spark", spark, .runnerEnv)
     }
   }
   print(paste("Received Id", codeId, "Code", code))

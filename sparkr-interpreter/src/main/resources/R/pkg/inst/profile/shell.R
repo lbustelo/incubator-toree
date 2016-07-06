@@ -26,9 +26,9 @@
 
   sc <- SparkR::sparkR.init()
   assign("sc", sc, envir=.GlobalEnv)
-  sqlContext <- SparkR::sparkRSQL.init(sc)
+  spark <- SparkR::sparkRSQL.init(sc)
   sparkVer <- SparkR:::callJMethod(sc, "version")
-  assign("sqlContext", sqlContext, envir=.GlobalEnv)
+  assign("spark", spark, envir=.GlobalEnv)
   cat("\n Welcome to")
   cat("\n")
   cat("    ____              __", "\n")
@@ -43,5 +43,5 @@
   cat("    /_/", "\n")
   cat("\n")
 
-  cat("\n Spark context is available as sc, SQL context is available as sqlContext\n")
+  cat("\n Spark context is available as sc, Spark Session is available as spark\n")
 }

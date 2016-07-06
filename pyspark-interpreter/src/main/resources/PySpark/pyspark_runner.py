@@ -31,7 +31,7 @@ from pyspark.serializers import MarshalSerializer, PickleSerializer
 from time import sleep
 
 # for back compatibility
-from pyspark.sql import SQLContext, HiveContext, SchemaRDD, Row
+from pyspark.sql import SparkSession, DataFrame, Row
 
 client = GatewayClient(port=int(sys.argv[1]))
 sparkVersion = sys.argv[2]
@@ -52,7 +52,7 @@ state = bridge.state()
 state.markReady()
 
 if sparkVersion.startswith("1.2"):
-    java_import(gateway.jvm, "org.apache.spark.sql.SQLContext")
+    java_import(gateway.jvm, "org.apache.spark.sql.SparkSession")
     java_import(gateway.jvm, "org.apache.spark.sql.hive.HiveContext")
     java_import(gateway.jvm, "org.apache.spark.sql.hive.LocalHiveContext")
     java_import(gateway.jvm, "org.apache.spark.sql.hive.TestHiveContext")
@@ -67,7 +67,7 @@ java_import(gateway.jvm, "scala.Tuple2")
 
 conf = None
 sc = None
-sqlContext = None
+spark = None
 code_info = None
 
 
@@ -109,7 +109,7 @@ class Kernel(object):
         self.refreshContext()
 
     def refreshContext(self):
-        global conf, sc, sqlContext
+        global conf, sc, spark
 
         # This is magic. Please look away. I was never here (prevents multiple gateways being instantiated)
         with SparkContext._lock:
@@ -124,10 +124,10 @@ class Kernel(object):
                 conf = SparkConf(_jvm=gateway.jvm, _jconf=jconf)
                 sc = SparkContext(jsc=jsc, gateway=gateway, conf=conf)
 
-        if sqlContext is None:
-            jsqlContext = self._jvm_kernel.sqlContext()
-            if jsqlContext is not None and sc is not None:
-                sqlContext = SQLContext(sc, sqlContext=jsqlContext)
+        if spark is None:
+            jspark = self._jvm_kernel.sparkSession()
+            if jspark is not None and sc is not None:
+                spark = SparkSession(sc, jSparkSession=jspark)
 
 kernel = Kernel(bridge.kernel())
 

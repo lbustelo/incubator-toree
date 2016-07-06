@@ -22,10 +22,10 @@ import java.net.{URL, URLClassLoader}
 import java.nio.charset.Charset
 import java.util.concurrent.ExecutionException
 
-import com.typesafe.config.{ConfigFactory, Config}
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.spark.SparkContext
 import org.apache.spark.repl.{SparkCommandLine, SparkIMain, SparkJLineCompletion}
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.toree.global.StreamState
 import org.apache.toree.interpreter._
 import org.apache.toree.interpreter.imports.printers.{WrapperConsole, WrapperSystem}
@@ -92,6 +92,7 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
   /**
    * Adds jars to the runtime and compile time classpaths. Does not work with
    * directories or expanding star in a path.
+ *
    * @param jars The list of jar locations
    */
   override def addJars(jars: URL*): Unit = {
@@ -158,10 +159,10 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
     })
 
     /*
-     * Need to rebind the defs for sc and sqlContext
+     * Need to rebind the defs for sc and sparkSession
      */
     bindSparkContext()
-    bindSqlContext()
+    bindSparkSession()
   }
 
   protected def reinitializeSymbols(): Unit = {
@@ -211,7 +212,7 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
   override def init(kernel: KernelLike): Interpreter = {
     bindKernelVariable(kernel)
     bindSparkContext()
-    bindSqlContext()
+    bindSparkSession()
 
     this
   }
@@ -541,15 +542,15 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
     }
   }
 
-  def bindSqlContext(): Unit = {
-    val bindName = "sqlContext"
+  def bindSparkSession(): Unit = {
+    val bindName = "spark"
 
     doQuietly {
       // TODO: This only adds the context to the main interpreter AND
       //       is limited to the Scala interpreter interface
       logger.debug(s"Binding SQLContext into interpreter as $bindName")
 
-      interpret(s"""def ${bindName}: ${classOf[SQLContext].getName} = kernel.sqlContext""")
+      interpret(s"""def ${bindName}: ${classOf[SparkSession].getName} = kernel.sparkSession""")
     }
   }
 

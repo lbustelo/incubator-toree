@@ -26,7 +26,7 @@ sc <- sparkR.init()
 sqlContext <- sparkRSQL.init(sc)
 
 test_that("glm and predict", {
-  training <- createDataFrame(sqlContext, iris)
+  training <- createDataFrame(spark, iris)
   test <- select(training, "Sepal_Length")
   model <- glm(Sepal_Width ~ Sepal_Length, training, family = "gaussian")
   prediction <- predict(model, test)
