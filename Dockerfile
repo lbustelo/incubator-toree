@@ -26,12 +26,20 @@ RUN curl -sL https://deb.nodesource.com/setup_0.12 | bash - && \
     npm install -g bower
 
 # for pyspark demos
-ENV APACHE_SPARK_VERSION 1.6.1
+ENV APACHE_SPARK_VERSION 2.0.0-SNAPSHOT
+
 RUN apt-get -y update && \
-    apt-get install -y --no-install-recommends openjdk-7-jre-headless && \
-    apt-get clean
+    apt-get -y install software-properties-common && \
+    add-apt-repository ppa:webupd8team/java && \
+    apt-get -y update && \
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections && \
+    apt-get install -y --no-install-recommends oracle-java8-installer && \
+    apt-get clean && \
+    update-java-alternatives -s java-8-oracle
+
+COPY spark-2.0.0-SNAPSHOT-bin-hadoop2.6.tgz /tmp
+
 RUN cd /tmp && \
-        wget -q http://apache.claz.org/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6.tgz && \
         tar xzf spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6.tgz -C /usr/local && \
         rm spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6.tgz
 RUN cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6 spark

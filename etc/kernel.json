@@ -4,11 +4,11 @@
   },
   "display_name": "Toree",
   "env": {
-    "PYTHONPATH": "/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.9-src.zip",
+    "PYTHONPATH": "/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10-1-src.zip",
     "SPARK_HOME": "/usr/local/spark",
-    "CAPTURE_STANDARD_ERR": "true",
+    "CAPTURE_STANDARD_ERR": "false",
     "MAX_INTERPRETER_THREADS": "16",
-    "CAPTURE_STANDARD_OUT": "true",
+    "CAPTURE_STANDARD_OUT": "false",
     "SEND_EMPTY_OUTPUT": "false",
     "PYTHON_EXEC": "python"
   },

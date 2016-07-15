@@ -27,7 +27,7 @@ IS_SNAPSHOT?=true
 SNAPSHOT:=-SNAPSHOT
 endif
 
-APACHE_SPARK_VERSION?=1.6.1
+APACHE_SPARK_VERSION?=2.0.0-SNAPSHOT
 IMAGE?=jupyter/pyspark-notebook:8dfd60b729bf
 EXAMPLE_IMAGE?=apache/toree-examples
 GPG?=/usr/local/bin/gpg
@@ -183,6 +183,7 @@ system-test: pip-release
 		-v `pwd`/dist/toree-pip:/srv/toree-pip \
 		-v `pwd`/test_toree.py:/srv/test_toree.py \
 		-v `pwd`/scala-interpreter/src/test/resources:/srv/system-test-resources \
+                -v `pwd`/spark:/usr/local/spark \
 		--user=root \
 		$(IMAGE) \
 		bash -c "(cd /srv/system-test-resources && python -m http.server 8000 &) && \
