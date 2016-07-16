@@ -43,7 +43,7 @@ library(SparkR)
 source("sparkr_runner_utils.R")
 
 sparkR.connect <- function() {
-  if (connExists(.sparkREnv)) {
+  if (SparkR:::connExists(.sparkREnv)) {
     print("Connection to SparkR backend has already been established!")
     return()
   }

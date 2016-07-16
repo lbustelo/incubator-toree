@@ -133,7 +133,7 @@ class Kernel(object):
         if spark is None:
             jspark = self._jvm_kernel.sparkSession()
             if jspark is not None and sc is not None:
-                spark = SparkSession(sc, jSparkSession=jspark)
+                spark = SparkSession(sc, jsparkSession=jspark)
 
 kernel = Kernel(bridge.kernel())
 

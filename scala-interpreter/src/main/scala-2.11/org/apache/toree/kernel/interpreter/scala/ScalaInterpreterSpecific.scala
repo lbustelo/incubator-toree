@@ -29,7 +29,7 @@ import scala.tools.nsc.interpreter.{JPrintWriter, IMain, JLineCompletion, IR}
 import scala.concurrent.Future
 import scala.tools.nsc.Settings
 
-trait ScalaInterpreterSpecific { this: ScalaInterpreter =>
+trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpreter =>
   private val ExecutionExceptionName = "lastException"
 
   private var iMain: IMain = _
@@ -219,7 +219,9 @@ trait ScalaInterpreterSpecific { this: ScalaInterpreter =>
     (result.cursor, result.candidates)
   }
 
-  protected def newSettings(args: List[String]): Settings = ???
+  override def newSettings(args: List[String]): Settings = {
+    new Settings()
+  }
 
   protected def interpretAddTask(code: String, silent: Boolean): Future[IR.Result] = {
     taskManager.add {

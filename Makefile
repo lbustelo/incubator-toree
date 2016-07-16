@@ -28,6 +28,7 @@ SNAPSHOT:=-SNAPSHOT
 endif
 
 APACHE_SPARK_VERSION?=2.0.0-SNAPSHOT
+SCALA_VERSION?=2.11
 IMAGE?=jupyter/pyspark-notebook:8dfd60b729bf
 EXAMPLE_IMAGE?=apache/toree-examples
 GPG?=/usr/local/bin/gpg
@@ -96,13 +97,13 @@ dev-binder: .binder-image
 		--workdir /home/main/notebooks $(BINDER_IMAGE) \
 		/home/main/start-notebook.sh --ip=0.0.0.0
 
-target/scala-2.10/$(ASSEMBLY_JAR): VM_WORKDIR=/src/toree-kernel
-target/scala-2.10/$(ASSEMBLY_JAR): ${shell find ./*/src/main/**/*}
-target/scala-2.10/$(ASSEMBLY_JAR): ${shell find ./*/build.sbt}
-target/scala-2.10/$(ASSEMBLY_JAR): dist/toree-legal project/build.properties build.sbt project/common.scala project/plugins.sbt
+target/scala-$(SCALA_VERSION)/$(ASSEMBLY_JAR): VM_WORKDIR=/src/toree-kernel
+target/scala-$(SCALA_VERSION)/$(ASSEMBLY_JAR): ${shell find ./*/src/main/**/*}
+target/scala-$(SCALA_VERSION)/$(ASSEMBLY_JAR): ${shell find ./*/build.sbt}
+target/scala-$(SCALA_VERSION)/$(ASSEMBLY_JAR): dist/toree-legal project/build.properties build.sbt project/common.scala project/plugins.sbt
 	$(call RUN,$(ENV_OPTS) sbt toree/assembly)
 
-build: target/scala-2.10/$(ASSEMBLY_JAR)
+build: target/scala-$(SCALA_VERSION)/$(ASSEMBLY_JAR)
 
 dev: DOCKER_WORKDIR=/srv/toree/etc/examples/notebooks
 dev: SUSPEND=n
@@ -123,9 +124,9 @@ test:
 sbt-%:
 	$(call RUN,$(ENV_OPTS) sbt $(subst sbt-,,$@) )
 
-dist/toree/lib: target/scala-2.10/$(ASSEMBLY_JAR)
+dist/toree/lib: target/scala-$(SCALA_VERSION)/$(ASSEMBLY_JAR)
 	@mkdir -p dist/toree/lib
-	@cp target/scala-2.10/$(ASSEMBLY_JAR) dist/toree/lib/.
+	@cp target/scala-$(SCALA_VERSION)/$(ASSEMBLY_JAR) dist/toree/lib/.
 
 dist/toree/bin: ${shell find ./etc/bin/*}
 	@mkdir -p dist/toree/bin
@@ -189,6 +190,7 @@ system-test: pip-release
 		bash -c "(cd /srv/system-test-resources && python -m http.server 8000 &) && \
 		pip install /srv/toree-pip/toree*.tar.gz && jupyter toree install --interpreters=PySpark,Scala && \
 		pip install nose jupyter_kernel_test && python /srv/test_toree.py"
+
 
 ################################################################################
 # Jars

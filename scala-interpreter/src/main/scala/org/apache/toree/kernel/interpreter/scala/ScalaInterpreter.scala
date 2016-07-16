@@ -41,7 +41,6 @@ import scala.util.{Try => UtilTry}
 class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends Interpreter with ScalaInterpreterSpecific {
    protected val logger = LoggerFactory.getLogger(this.getClass.getName)
 
-   protected var settings: Settings = null
    protected val _thisClassloader = this.getClass.getClassLoader
 
    protected val _runtimeClassloader =
@@ -49,29 +48,25 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
        def addJar(url: URL) = this.addURL(url)
      }
 
-  protected val lastResultOut = new ByteArrayOutputStream()
+   protected val lastResultOut = new ByteArrayOutputStream()
 
    protected val multiOutputStream = MultiOutputStream(List(Console.out))
    private[scala] var taskManager: TaskManager = _
-//  protected var settings: Settings = newSettings(interpreterArgs())
+   protected var settings: Settings = newSettings(List())
 
-  settings.classpath.value = buildClasspath(_thisClassloader)
-  settings.embeddedDefaults(_runtimeClassloader)
-
-  private val maxInterpreterThreads: Int = {
-    if(config.hasPath("max_interpreter_threads"))
-      config.getInt("max_interpreter_threads")
-    else
-      TaskManager.DefaultMaximumWorkers
-  }
-
+   private val maxInterpreterThreads: Int = {
+     if(config.hasPath("max_interpreter_threads"))
+       config.getInt("max_interpreter_threads")
+     else
+       TaskManager.DefaultMaximumWorkers
+   }
 
    protected def newTaskManager(): TaskManager =
      new TaskManager(maximumWorkers = maxInterpreterThreads)
 
    override def init(kernel: KernelLike): Interpreter = {
      val args = interpreterArgs(kernel)
-     this.settings = newSettings(args)
+     settings = newSettings(args)
 
      this.settings.classpath.value = buildClasspath(_thisClassloader)
      this.settings.embeddedDefaults(_runtimeClassloader)

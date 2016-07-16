@@ -76,6 +76,7 @@ trait StandardComponentInitialization extends ComponentInitialization {
       initializeCommObjects(actorLoader)
 
     val interpreterManager =  InterpreterManager(config)
+    interpreterManager.interpreters foreach(println)
 
     val dependencyDownloader = initializeDependencyDownloader(config)
     val pluginManager = createPluginManager(config, interpreterManager, dependencyDownloader)
@@ -158,8 +159,8 @@ trait StandardComponentInitialization extends ComponentInitialization {
 
     //kernel has a dependency on ScalaInterpreter to get the ClassServerURI for the SparkConf
     //we need to pre-start the ScalaInterpreter
-    val scalaInterpreter = interpreterManager.interpreters("Scala")
-    scalaInterpreter.start()
+//    val scalaInterpreter = interpreterManager.interpreters("Scala")
+//    scalaInterpreter.start()
 
     val kernel = new Kernel(
       config,
@@ -193,7 +194,7 @@ trait StandardComponentInitialization extends ComponentInitialization {
     val pluginManager = new PluginManager()
 
     logger.debug("Building dependency map")
-    pluginManager.dependencyManager.add(interpreterManager.interpreters.get("Scala").get)
+    pluginManager.dependencyManager.add(interpreterManager.interpreters("Scala"))
     pluginManager.dependencyManager.add(dependencyDownloader)
     pluginManager.dependencyManager.add(config)
 
