@@ -1,4 +1,8 @@
-package test.utils;
+package test.utils
+
+import org.clapper.classutil._
+import org.clapper.classutil.Modifier.Modifier
+import java.io.File
 
 case class TestClassInfo(
   superClassName: String = "",
