@@ -37,6 +37,7 @@ object Common {
   val buildInfoSettings = Seq(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, "sparkVersion" -> sparkVersion),
     buildInfoPackage := buildOrganization,
+    buildInfoUsePackageAsPath := true,
     buildInfoOptions += BuildInfoOption.BuildTime
   )
 
