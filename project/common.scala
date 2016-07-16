@@ -32,7 +32,7 @@ object Common {
   private val gpgPassword               = Properties.envOrElse("GPG_PASSWORD","")
   private val buildOrganization         = "org.apache.toree.kernel"
   private val buildVersion              = if (snapshot) s"$versionNumber-SNAPSHOT" else versionNumber
-  private val buildScalaVersion         = "2.10.6"
+  private val buildScalaVersion         = "2.11.8"
 
   val buildInfoSettings = Seq(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, "sparkVersion" -> sparkVersion),
@@ -195,7 +195,7 @@ object Common {
       "-unchecked", "-feature",
       //"-Xlint", // Scala 2.11.x only
       "-Xfatal-warnings",
-      "-Ywarn-all",
+      //"-Ywarn-all",
       "-language:reflectiveCalls",
       "-target:jvm-1.6"
     ),

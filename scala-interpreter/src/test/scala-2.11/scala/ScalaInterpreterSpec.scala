@@ -18,13 +18,14 @@
 package org.apache.toree.kernel.interpreter.scala
 
 import java.io.{File, InputStream, OutputStream}
-import java.net.{URLClassLoader, URL}
+import java.net.{URL, URLClassLoader}
 
 import org.apache.toree.interpreter.Results.Result
 import org.apache.toree.interpreter._
 import org.apache.toree.utils.TaskManager
-import org.apache.spark.SparkConf
-import org.apache.spark.repl.SparkIMain
+
+import scala.tools.nsc.interpreter.IMain
+import org.apache.toree.kernel.interpreter.scala._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
@@ -42,7 +43,7 @@ class ScalaInterpreterSpec extends FunSpec
 {
   private var interpreter: ScalaInterpreter               = _
   private var interpreterNoPrintStreams: ScalaInterpreter = _
-  private var mockSparkIMain: SparkIMain                  = _
+  private var mockSparkIMain: IMain                  = _
   private var mockTaskManager: TaskManager                = _
   private var mockSettings: Settings                      = _
 
@@ -90,20 +91,16 @@ class ScalaInterpreterSpec extends FunSpec
   class StubbedStartInterpreter
     extends ScalaInterpreter
   {
-    override def newSparkIMain(settings: Settings, out: JPrintWriter): SparkIMain = mockSparkIMain
+
+    override protected def newIMain(settings: Settings, out: JPrintWriter): IMain = mockSparkIMain
     override def newTaskManager(): TaskManager = mockTaskManager
     override def newSettings(args: List[String]): Settings = mockSettings
 
     // Stubbed out (not testing this)
-    override protected def updateCompilerClassPath(jars: URL*): Unit = {}
-
-    override protected def reinitializeSymbols(): Unit = {}
-
-    override protected def refreshDefinitions(): Unit = {}
   }
 
   before {
-    mockSparkIMain  = mock[SparkIMain]
+    mockSparkIMain  = mock[IMain]
 
     mockTaskManager = mock[TaskManager]
 

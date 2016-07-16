@@ -93,7 +93,12 @@ class MagicManager(private val pluginManager: PluginManager) extends Dynamic {
   private def handleMagicResult(name: String, result: Try[Any]) = result match {
      case Success(magicOutput) => magicOutput match {
         case null | _: BoxedUnit => Right(LineMagicOutput)
-        case cmo: CellMagicOutput => Left(cmo)
+        case Map =>
+          val cmo = magicOutput.asInstanceOf[Map[Any, Any]]
+          cmo.head._1 match {
+            case _: String => Left(cmo.asInstanceOf[Map[String, String]])
+            case _ => Left(cmo.map{case (a, b) => (a.toString, b.toString)}.toMap)
+          }
         case unknown =>
           val message =
             s"""Magic ${name} did not return proper magic output
