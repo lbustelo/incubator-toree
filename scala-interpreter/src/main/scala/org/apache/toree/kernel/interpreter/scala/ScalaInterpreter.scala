@@ -52,9 +52,21 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
    protected val multiOutputStream = MultiOutputStream(List(Console.out))
    private[scala] var taskManager: TaskManager = _
-   protected var settings: Settings = newSettings(List())
 
-   private val maxInterpreterThreads: Int = {
+  /** Since the ScalaInterpreter can be started without a kernel, we need to ensure that we can compile things.
+      Adding in the default classpaths as needed.
+    */
+  def appendClassPath(settings: Settings): Settings = {
+    settings.classpath.value = buildClasspath(_thisClassloader)
+    settings.embeddedDefaults(_runtimeClassloader)
+    settings
+  }
+
+  protected var settings: Settings = newSettings(List())
+  settings = appendClassPath(settings)
+
+
+  private val maxInterpreterThreads: Int = {
      if(config.hasPath("max_interpreter_threads"))
        config.getInt("max_interpreter_threads")
      else
@@ -67,9 +79,7 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
    override def init(kernel: KernelLike): Interpreter = {
      val args = interpreterArgs(kernel)
      settings = newSettings(args)
-
-     this.settings.classpath.value = buildClasspath(_thisClassloader)
-     this.settings.embeddedDefaults(_runtimeClassloader)
+     settings = appendClassPath(settings)
 
      start()
      bindKernelVariable(kernel)
