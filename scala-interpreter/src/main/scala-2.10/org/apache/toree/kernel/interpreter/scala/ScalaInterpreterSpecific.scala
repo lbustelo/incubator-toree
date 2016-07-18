@@ -340,6 +340,8 @@ trait ScalaInterpreterSpecific { this: ScalaInterpreter =>
     new SparkCommandLine(args).settings
 
   protected def interpretAddTask(code: String, silent: Boolean): Future[IR.Result] = {
+    if (sparkIMain == null) throw new IllegalArgumentException("Cannot interpret on a stopped interpreter")
+
     taskManager.add {
       // Add a task using the given state of our streams
       StreamState.withStreams {

@@ -12,5 +12,6 @@ case class TestClassInfo(
   fields: Set[FieldInfo] = Set(),
   signature: String = "",
   modifiers: Set[Modifier] = Set(),
-  name: String = ""
+  name: String = "",
+  annotations: Set[AnnotationInfo] = Set()
 ) extends ClassInfo

@@ -44,7 +44,7 @@ class ScalaInterpreterSpec extends FunSpec
 {
   private var interpreter: ScalaInterpreter               = _
   private var interpreterNoPrintStreams: ScalaInterpreter = _
-//  private var mockSparkIMain: SparkIMain                  = _
+  private var mockSparkIMain: SparkIMain                  = _
   private var mockTaskManager: TaskManager                = _
   private var mockSettings: Settings                      = _
 

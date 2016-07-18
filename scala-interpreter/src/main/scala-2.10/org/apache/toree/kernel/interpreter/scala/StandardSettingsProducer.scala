@@ -2,6 +2,8 @@ package org.apache.toree.kernel.interpreter.scala
 
 import org.apache.spark.repl.SparkCommandLine
 
+import scala.tools.nsc.Settings
+
 /**
   * Created by mniekerk on 7/15/16.
   */
