@@ -137,13 +137,16 @@ class ScalaInterpreterSpec extends FunSpec
         }
 
         val url = new URL("file://expected")
+        itInterpreter.start()
         itInterpreter.addJars(url)
 
         itInterpreter.runtimeClassloader.getURLs should contain (url)
+        itInterpreter.stop()
       }
 
       it("should add each jar URL to the interpreter classpath") {
         val url = new URL("file://expected")
+        interpreter.start()
         interpreter.addJars(url)
       }
     }

@@ -224,6 +224,8 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
   }
 
   protected def interpretAddTask(code: String, silent: Boolean): Future[IR.Result] = {
+    if (iMain == null) throw new IllegalArgumentException("Interpreter not started yet!")
+
     taskManager.add {
       // Add a task using the given state of our streams
       StreamState.withStreams {
