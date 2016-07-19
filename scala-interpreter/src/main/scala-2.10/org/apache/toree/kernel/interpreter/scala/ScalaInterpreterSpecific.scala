@@ -51,6 +51,11 @@ trait ScalaInterpreterSpecific { this: ScalaInterpreter =>
   var sparkIMain: SparkIMain = _
   protected var jLineCompleter: SparkJLineCompletion = _
 
+  val _runtimeClassloader =
+    new URLClassLoader(Array(), _thisClassloader) {
+      def addJar(url: URL) = this.addURL(url)
+    }
+
   protected def newSparkIMain(
     settings: Settings, out: JPrintWriter
   ): SparkIMain = {
@@ -285,6 +290,8 @@ trait ScalaInterpreterSpecific { this: ScalaInterpreter =>
 
   /**
    * Starts the interpreter, initializing any internal state.
+   * You must call init before running this function.
+   *
    * @return A reference to the interpreter
    */
   override def start(): Interpreter = {

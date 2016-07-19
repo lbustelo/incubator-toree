@@ -33,6 +33,7 @@ object Common {
   private val buildOrganization         = "org.apache.toree.kernel"
   private val buildVersion              = if (snapshot) s"$versionNumber-SNAPSHOT" else versionNumber
   private val buildScalaVersion         = "2.11.8"
+//  private val buildScalaVersion         = "2.10.6"
 
   val buildInfoSettings = Seq(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, "sparkVersion" -> sparkVersion),

@@ -43,11 +43,6 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
    protected val _thisClassloader = this.getClass.getClassLoader
 
-   protected val _runtimeClassloader =
-     new URLClassLoader(Array(), _thisClassloader) {
-       def addJar(url: URL) = this.addURL(url)
-     }
-
    protected val lastResultOut = new ByteArrayOutputStream()
 
    protected val multiOutputStream = MultiOutputStream(List(Console.out))
@@ -76,6 +71,11 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
    protected def newTaskManager(): TaskManager =
      new TaskManager(maximumWorkers = maxInterpreterThreads)
 
+  /**
+    * This has to be called first to initialize all the settings.
+    *
+    * @return The newly initialized interpreter
+    */
    override def init(kernel: KernelLike): Interpreter = {
      val args = interpreterArgs(kernel)
      settings = newSettings(args)
@@ -110,7 +110,12 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
    protected def interpreterArgs(kernel: KernelLike): List[String] = {
      import scala.collection.JavaConverters._
-     kernel.config.getStringList("interpreter_args").asScala.toList
+     if (kernel == null || kernel.config == null) {
+       List()
+     }
+     else {
+       kernel.config.getStringList("interpreter_args").asScala.toList
+     }
    }
 
    protected def maxInterpreterThreads(kernel: KernelLike): Int = {

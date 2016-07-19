@@ -67,7 +67,7 @@ class InterpreterActorSpecForIntegration extends TestKit(
 
   before {
     output.reset()
-    interpreter.start()
+    // interpreter.start()
     interpreter.init(mock[KernelLike])
 
     interpreter.doQuietly({

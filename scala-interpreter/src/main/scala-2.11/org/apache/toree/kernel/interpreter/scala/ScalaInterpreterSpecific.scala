@@ -35,6 +35,12 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
   private var iMain: IMain = _
   private var jLineCompleter: JLineCompletion = _
 
+  def _runtimeClassloader = {
+    if (iMain != null) {
+    iMain.classLoader.getParent.asInstanceOf[reflect.internal.util.ScalaClassLoader.URLClassLoader]
+    } else { null }
+  }
+
   protected def newIMain(settings: Settings, out: JPrintWriter): IMain = {
     val s = new IMain(settings, out)
     s.initializeSynchronous()
@@ -47,8 +53,10 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
    * @param jars The list of jar locations
    */
   override def addJars(jars: URL*): Unit = {
-    jars.foreach(_runtimeClassloader.addJar)
+    //jars.foreach(_runtimeClassloader.addJar)
     iMain.addUrlsToClassPath(jars: _*)
+
+//    _runtimeClassloader =
   }
 
   /**

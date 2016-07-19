@@ -41,7 +41,7 @@ class PostProcessorSpecForIntegration extends FunSpec with Matchers
       override protected def bindKernelVariable(kernel: KernelLike): Unit = { }
     }
 
-    scalaInterpreter.start()
+    // scalaInterpreter.start()
     scalaInterpreter.init(mock[KernelLike])
 
     postProcessor = new PostProcessor(scalaInterpreter)

@@ -133,13 +133,17 @@ class ScalaInterpreterSpec extends FunSpec
         // Create a new interpreter exposing the internal runtime classloader
         val itInterpreter = new StubbedStartInterpreter {
           // Expose the runtime classloader
+
+
           def runtimeClassloader = _runtimeClassloader
+
         }
 
         val url = new URL("file://expected")
         itInterpreter.start()
         itInterpreter.addJars(url)
 
+//        itInterpreter.runtimeClassloader
         itInterpreter.runtimeClassloader.getURLs should contain (url)
         itInterpreter.stop()
       }

@@ -40,7 +40,7 @@ class AddExternalJarMagicSpecForIntegration
 
       override protected def bindKernelVariable(kernel: KernelLike): Unit = { }
     }
-    interpreter.start()
+    // interpreter.start()
     interpreter.init(mock[KernelLike])
 
     StreamState.setStreams(outputStream = outputResult)
@@ -212,10 +212,12 @@ class AddExternalJarMagicSpecForIntegration
         //           testjar.com.ibm.testjar.TestClass
         // runMe(t)
         //       ^
-        interpreter.interpret(
+        val ans = interpreter.interpret(
           """
             |runMe(t)
-          """.stripMargin)._1 should be (Results.Success)
+          """.stripMargin)
+
+        ans._1 should be (Results.Success)
       }
     }
   }
