@@ -123,12 +123,12 @@ class ToreeSparkRKernelTests(jupyter_kernel_test.KernelTests):
     # Optional --------------------------------------
 
     # Code in the kernel's language to write "hello, world" to stdout
-    code_hello_world = "cat(\"hello, world\")"
+    code_hello_world = r'cat("hello, world\n")'
 
     # Samples of code which generate a result value (ie, some text
     # displayed as Out[n])
     code_execute_result = [
-        {'code': '6*7', 'result': '42'}
+        {'code': '6*7', 'result': '[1] 42'}
     ]
 
 if __name__ == '__main__':
