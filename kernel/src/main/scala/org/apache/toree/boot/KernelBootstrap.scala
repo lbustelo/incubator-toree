@@ -29,6 +29,8 @@ import org.apache.toree.security.KernelSecurityManager
 import org.apache.toree.utils.LogLike
 import org.zeromq.ZMQ
 
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 import scala.util.Try
 
 class KernelBootstrap(config: Config) extends LogLike {
@@ -130,7 +132,7 @@ class KernelBootstrap(config: Config) extends LogLike {
     )
 
     logger.info("Shutting down actor system")
-    Try(actorSystem.shutdown()).failed.foreach(
+    Try(actorSystem.terminate()).failed.foreach(
       logger.error("Failed to shutdown actor system", _: Throwable)
     )
 
@@ -142,7 +144,8 @@ class KernelBootstrap(config: Config) extends LogLike {
    */
   def waitForTermination() = {
     logger.debug("Waiting for actor system to terminate")
-    actorSystem.awaitTermination()
+//    actorSystem.awaitTermination()
+    Await.result(actorSystem.whenTerminated, Duration.Inf)
 
     this
   }

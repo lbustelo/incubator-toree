@@ -19,5 +19,5 @@
 // TEST DEPENDENCIES
 //
 libraryDependencies +=
-  "com.typesafe.akka" %% "akka-testkit" % "2.3.15" % "test" // MIT
+  "com.typesafe.akka" %% "akka-testkit" % "2.4.8" % "test" // MIT
 

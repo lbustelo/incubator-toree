@@ -227,9 +227,9 @@ object Common {
     ),
 
     // Add additional test option to show time taken per test
-    testOptions in Test += Tests.Argument("-oD"),
+    testOptions in Test += Tests.Argument("-oDF"),
 
-    // Add a global resource directory with compile/ and test/ for resources in all projects
+      // Add a global resource directory with compile/ and test/ for resources in all projects
     unmanagedResourceDirectories in Compile += file("resources/compile"),
     unmanagedResourceDirectories in Test += file("resources/test"),
 

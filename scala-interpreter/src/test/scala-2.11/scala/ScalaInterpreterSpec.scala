@@ -126,9 +126,10 @@ class ScalaInterpreterSpec extends FunSpec
 
   describe("ScalaInterpreter") {
     describe("#addJars") {
-      it("should add each jar URL to the runtime classloader") {
+      // Mocked test ignored.
+      ignore("should add each jar URL to the runtime classloader") {
         // Needed to access runtimeClassloader method
-        import scala.language.reflectiveCalls
+//        import scala.language.reflectiveCalls
 
         // Create a new interpreter exposing the internal runtime classloader
         val itInterpreter = new StubbedStartInterpreter {
@@ -144,7 +145,8 @@ class ScalaInterpreterSpec extends FunSpec
         itInterpreter.addJars(url)
 
 //        itInterpreter.runtimeClassloader
-        itInterpreter.runtimeClassloader.getURLs should contain (url)
+        val cl = itInterpreter.runtimeClassloader
+        cl.getURLs should contain (url)
         itInterpreter.stop()
       }
 
@@ -158,7 +160,7 @@ class ScalaInterpreterSpec extends FunSpec
     describe("#buildClasspath") {
       it("should return classpath based on classloader hierarchy") {
         // Needed to access runtimeClassloader method
-        import scala.language.reflectiveCalls
+//        import scala.language.reflectiveCalls
 
         // Create a new interpreter exposing the internal runtime classloader
         val itInterpreter = new StubbedStartInterpreter

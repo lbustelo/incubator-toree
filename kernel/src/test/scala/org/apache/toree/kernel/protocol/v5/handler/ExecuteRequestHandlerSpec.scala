@@ -38,7 +38,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import test.utils.MaxAkkaTestTimeout
 class ExecuteRequestHandlerSpec extends TestKit(
-  ActorSystem("ExecuteRequestHandlerSpec")
+  ActorSystem(
+    "ExecuteRequestHandlerSpec",
+    None,
+    Some(org.apache.toree.Main.getClass.getClassLoader)
+  )
 ) with ImplicitSender with FunSpecLike with Matchers with MockitoSugar
   with BeforeAndAfter {
 
