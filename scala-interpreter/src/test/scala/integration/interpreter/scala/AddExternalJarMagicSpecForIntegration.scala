@@ -19,6 +19,7 @@ package integration.interpreter.scala
 
 import java.io.{ByteArrayOutputStream, OutputStream}
 
+import org.apache.toree.annotations.SbtForked
 import org.apache.toree.global.StreamState
 import org.apache.toree.interpreter._
 import org.apache.toree.kernel.api.KernelLike
@@ -27,6 +28,7 @@ import org.apache.toree.utils.{MultiOutputStream, TaskManager}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
+@SbtForked
 class AddExternalJarMagicSpecForIntegration
   extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter
 {
@@ -47,6 +49,7 @@ class AddExternalJarMagicSpecForIntegration
   }
 
   after {
+    interpreter.stop()
     outputResult.reset()
   }
 
@@ -196,7 +199,6 @@ class AddExternalJarMagicSpecForIntegration
         // Add a second jar, which reinitializes the symbols and breaks the
         // above variable
         interpreter.addJars(testJar2Url)
-        interpreter.addJars()
 
         interpreter.interpret(
           """

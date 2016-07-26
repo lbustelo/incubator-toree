@@ -17,25 +17,20 @@
 
 package org.apache.toree.kernel.interpreter.scala
 
-import java.io.{File, InputStream, OutputStream}
+import java.io.{InputStream, OutputStream}
 import java.net.{URL, URLClassLoader}
 
 import org.apache.toree.interpreter.Results.Result
 import org.apache.toree.interpreter._
 import org.apache.toree.utils.TaskManager
-
-import scala.tools.nsc.interpreter.IMain
-import org.apache.toree.kernel.interpreter.scala._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scala.concurrent.Future
 import scala.tools.nsc.Settings
-import scala.tools.nsc.interpreter.{JPrintWriter, IR}
+import scala.tools.nsc.interpreter.{IMain, IR, JPrintWriter}
 import scala.tools.nsc.util.ClassPath
 
 class ScalaInterpreterSpec extends FunSpec
@@ -95,6 +90,10 @@ class ScalaInterpreterSpec extends FunSpec
     override protected def newIMain(settings: Settings, out: JPrintWriter): IMain = mockSparkIMain
     override def newTaskManager(): TaskManager = mockTaskManager
     override def newSettings(args: List[String]): Settings = mockSettings
+
+    // mocking out these
+    override protected def reinitializeSymbols(): Unit = {}
+    override protected def refreshDefinitions(): Unit = {}
 
     // Stubbed out (not testing this)
   }

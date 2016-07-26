@@ -23,11 +23,12 @@ import java.net.URL
 import org.apache.toree.global.StreamState
 import org.apache.toree.interpreter.InterpreterTypes.ExecuteOutput
 import org.apache.toree.interpreter.imports.printers.{WrapperConsole, WrapperSystem}
-import org.apache.toree.interpreter.{ExecuteError, ExecuteFailure, Results, Interpreter}
-import scala.tools.nsc.interpreter.{JPrintWriter, IMain, JLineCompletion, IR}
+import org.apache.toree.interpreter.{ExecuteError, ExecuteFailure, Interpreter, Results}
 
+import scala.tools.nsc.interpreter.{IMain, IR, JLineCompletion, JPrintWriter}
 import scala.concurrent.Future
-import scala.tools.nsc.Settings
+import scala.tools.nsc.{Global, Settings}
+import scala.util.Try
 
 trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpreter =>
   private val ExecutionExceptionName = "lastException"
@@ -47,6 +48,60 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
     s
   }
 
+  protected def convertAnnotationsToModifiers(
+                                               annotationInfos: List[Global#AnnotationInfo]
+                                             ) = annotationInfos map {
+    case a if a.toString == "transient" => "@transient"
+    case a =>
+      logger.debug(s"Ignoring unknown annotation: $a")
+      ""
+  } filterNot {
+    _.isEmpty
+  }
+
+  protected def convertScopeToModifiers(scopeSymbol: Global#Symbol) = {
+    (if (scopeSymbol.isImplicit) "implicit" else "") ::
+      Nil
+  }
+
+  protected def buildModifierList(termNameString: String) = {
+    import scala.language.existentials
+    val termSymbol = iMain.symbolOfTerm(termNameString)
+
+
+    convertAnnotationsToModifiers(
+      if (termSymbol.hasAccessorFlag) termSymbol.accessed.annotations
+      else termSymbol.annotations
+    ) ++ convertScopeToModifiers(termSymbol)
+  }
+
+
+  protected def refreshDefinitions(): Unit = {
+    iMain.definedTerms.foreach(termName => {
+      val termNameString = termName.toString
+      val termTypeString = iMain.typeOfTerm(termNameString).toLongString
+      iMain.valueOfTerm(termNameString) match {
+        case Some(termValue)  =>
+          val modifiers = buildModifierList(termNameString)
+          logger.debug(s"Rebinding of $termNameString as " +
+            s"${modifiers.mkString(" ")} $termTypeString")
+          Try(iMain.beSilentDuring {
+            iMain.bind(
+              termNameString, termTypeString, termValue, modifiers
+            )
+          })
+        case None             =>
+          logger.debug(s"Ignoring rebinding of $termNameString")
+      }
+    })
+  }
+
+  protected def reinitializeSymbols(): Unit = {
+    val global = iMain.global
+    import global._
+    new Run // Initializes something needed for Scala classes
+  }
+
   /**
    * Adds jars to the runtime and compile time classpaths. Does not work with
    * directories or expanding star in a path.
@@ -54,9 +109,22 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
    */
   override def addJars(jars: URL*): Unit = {
     //jars.foreach(_runtimeClassloader.addJar)
-    iMain.addUrlsToClassPath(jars: _*)
 
+    // Enable Scala class support
+    reinitializeSymbols()
+
+//    jars.foreach(_runtimeClassloader.addJar)
+//    updateCompilerClassPath(jars : _*)
+
+
+    iMain.addUrlsToClassPath(jars: _*)
+//    iMain.
 //    _runtimeClassloader =
+
+    // Refresh all of our variables
+    refreshDefinitions()
+
+
   }
 
   /**

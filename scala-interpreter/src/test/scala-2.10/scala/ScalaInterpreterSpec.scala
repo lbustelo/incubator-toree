@@ -23,7 +23,6 @@ import java.net.{URLClassLoader, URL}
 import org.apache.toree.interpreter.Results.Result
 import org.apache.toree.interpreter._
 import org.apache.toree.utils.TaskManager
-//package org.apache.toree.kernel.interpreter.scala
 import org.apache.spark.SparkConf
 import org.apache.toree.kernel.interpreter.scala._
 import org.apache.spark.repl.SparkIMain
