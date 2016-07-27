@@ -6,9 +6,9 @@
   "env": {
     "PYTHONPATH": "/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10-1-src.zip",
     "SPARK_HOME": "/usr/local/spark",
-    "CAPTURE_STANDARD_ERR": "false",
+    "CAPTURE_STANDARD_ERR": "true",
     "MAX_INTERPRETER_THREADS": "16",
-    "CAPTURE_STANDARD_OUT": "false",
+    "CAPTURE_STANDARD_OUT": "true",
     "SEND_EMPTY_OUTPUT": "false",
     "PYTHON_EXEC": "python"
   },

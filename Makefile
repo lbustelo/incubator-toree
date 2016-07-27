@@ -179,15 +179,22 @@ jupyter: .example-image pip-release
 ################################################################################
 system-test: pip-release
 	@echo '-- Running jupyter kernel tests'
-	@docker run --rm -ti \
+	@docker run -ti --rm \
 		--name jupyter_kernel_tests \
 		-v `pwd`/dist/toree-pip:/srv/toree-pip \
 		-v `pwd`/test_toree.py:/srv/test_toree.py \
 		-v `pwd`/scala-interpreter/src/test/resources:/srv/system-test-resources \
-                -v `pwd`/spark:/usr/local/spark \
 		--user=root \
 		$(IMAGE) \
 		bash -c "(cd /srv/system-test-resources && python -m http.server 8000 &) && \
+		cd /tmp && \
+		wget http://apache.claz.org/spark/spark-$(APACHE_SPARK_VERSION)/spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
+		tar xzf spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz -C /usr/local && \
+		rm spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
+		cd /usr/local && \
+                rm spark && \
+                ln -s spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6 spark && \
+                cat /usr/local/spark/RELEASE && \
 		pip install /srv/toree-pip/toree*.tar.gz && jupyter toree install --interpreters=PySpark,Scala && \
 		pip install nose jupyter_kernel_test && python /srv/test_toree.py"
 

@@ -29,11 +29,19 @@ RUN curl -sL https://deb.nodesource.com/setup_0.12 | bash - && \
 ENV APACHE_SPARK_VERSION 2.0.0
 
 RUN apt-get -y update && \
-    apt-get -y install software-properties-common && \
-    add-apt-repository ppa:webupd8team/java && \
-    apt-get -y update && \
-    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections && \
-    apt-get install -y --no-install-recommends oracle-java8-installer && \
+    apt-get -y install software-properties-common
+
+RUN \
+    echo "===> add webupd8 repository..."  && \
+    echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list  && \
+    echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list  && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886  && \
+    apt-get update
+
+RUN echo "===> install Java"  && \
+    echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections  && \
+    echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections  && \
+    DEBIAN_FRONTEND=noninteractive  apt-get install -y --force-yes oracle-java8-installer oracle-java8-set-default && \
     apt-get clean && \
     update-java-alternatives -s java-8-oracle
 
