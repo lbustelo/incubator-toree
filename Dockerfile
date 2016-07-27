@@ -26,7 +26,7 @@ RUN curl -sL https://deb.nodesource.com/setup_0.12 | bash - && \
     npm install -g bower
 
 # for pyspark demos
-ENV APACHE_SPARK_VERSION 2.0.0-SNAPSHOT
+ENV APACHE_SPARK_VERSION 2.0.0
 
 RUN apt-get -y update && \
     apt-get -y install software-properties-common && \
@@ -37,9 +37,8 @@ RUN apt-get -y update && \
     apt-get clean && \
     update-java-alternatives -s java-8-oracle
 
-COPY spark-2.0.0-SNAPSHOT-bin-hadoop2.6.tgz /tmp
-
 RUN cd /tmp && \
+        wget -q http://apache.claz.org/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6.tgz && \
         tar xzf spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6.tgz -C /usr/local && \
         rm spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6.tgz
 RUN cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop2.6 spark
@@ -53,7 +52,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV SPARK_HOME /usr/local/spark
-ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.9-src.zip
+ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.1-src.zip
 ENV PYSPARK_PYTHON /home/main/anaconda2/envs/python3/bin/python
 ENV R_LIBS_USER $SPARK_HOME/R/lib
 

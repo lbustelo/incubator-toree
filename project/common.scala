@@ -92,7 +92,7 @@ object Common {
 
   private lazy val sparkVersion = {
     val sparkEnvironmentVariable = "APACHE_SPARK_VERSION"
-    val defaultSparkVersion = "2.0.0-SNAPSHOT"
+    val defaultSparkVersion = "2.0.0"
 
     val _sparkVersion = Properties.envOrNone(sparkEnvironmentVariable)
 
