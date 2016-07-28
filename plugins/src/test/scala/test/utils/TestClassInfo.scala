@@ -14,18 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License
  */
-package org.apache.toree.kernel.interpreter.scala
+package test.utils
 
-import org.apache.spark.repl.SparkCommandLine
+import java.io.File
 
-import scala.tools.nsc.Settings
+import org.clapper.classutil.Modifier.Modifier
+import org.clapper.classutil._
 
-/**
-  * Created by mniekerk on 7/15/16.
-  */
-
-
-trait StandardSettingsProducer extends SettingsProducerLike {
-  override def newSettings(args: List[String]): Settings =
-    new SparkCommandLine(args).settings
-}
+case class TestClassInfo(
+  superClassName: String = "",
+  interfaces: List[String] = Nil,
+  location: File = null,
+  methods: Set[MethodInfo] = Set(),
+  fields: Set[FieldInfo] = Set(),
+  signature: String = "",
+  modifiers: Set[Modifier] = Set(),
+  name: String = "",
+  annotations: Set[AnnotationInfo] = Set()
+) extends ClassInfo
