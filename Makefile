@@ -29,7 +29,7 @@ endif
 
 APACHE_SPARK_VERSION?=2.0.0
 SCALA_VERSION?=2.11
-IMAGE?=jupyter/pyspark-notebook:8dfd60b729bf
+IMAGE?=jupyter/all-spark-notebook:07a7c4d6d447
 EXAMPLE_IMAGE?=apache/toree-examples
 GPG?=/usr/local/bin/gpg
 GPG_PASSWORD?=
@@ -187,15 +187,30 @@ system-test: pip-release
 		--user=root \
 		$(IMAGE) \
 		bash -c "(cd /srv/system-test-resources && python -m http.server 8000 &) && \
+		\
 		cd /tmp && \
 		wget http://apache.claz.org/spark/spark-$(APACHE_SPARK_VERSION)/spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
 		tar xzf spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz -C /usr/local && \
 		rm spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
 		cd /usr/local && \
-                rm spark && \
-                ln -s spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6 spark && \
-                cat /usr/local/spark/RELEASE && \
-		pip install /srv/toree-pip/toree*.tar.gz && jupyter toree install --interpreters=PySpark,Scala && \
+            rm spark && \
+            ln -s spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6 spark && \
+            cat /usr/local/spark/RELEASE && \
+        \
+        echo \"===> add webupd8 repository...\"  && \
+        echo \"deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main\" | tee /etc/apt/sources.list.d/webupd8team-java.list  && \
+        echo \"deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main\" | tee -a /etc/apt/sources.list.d/webupd8team-java.list  && \
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886  && \
+        apt-get update && \
+        \
+        echo \"===> install Java\"  && \
+        echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections  && \
+        echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections  && \
+        DEBIAN_FRONTEND=noninteractive  apt-get install -y --force-yes oracle-java8-installer oracle-java8-set-default && \
+        apt-get clean && \
+        update-java-alternatives -s java-8-oracle && \
+        \
+		pip install /srv/toree-pip/toree*.tar.gz && jupyter toree install --interpreters=PySpark,Scala,SparkR && \
 		pip install nose jupyter_kernel_test && python /srv/test_toree.py"
 
 
