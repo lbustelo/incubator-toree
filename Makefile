@@ -1,12 +1,12 @@
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
+# contributor license agreements.	See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+# the License.	You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#		 http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,7 @@ APACHE_SPARK_VERSION?=2.0.0
 SCALA_VERSION?=2.11
 IMAGE?=jupyter/all-spark-notebook:07a7c4d6d447
 EXAMPLE_IMAGE?=apache/toree-examples
+SYSTEM_TEST_IMAGE?=apache/toree-systemtest
 GPG?=/usr/local/bin/gpg
 GPG_PASSWORD?=
 BINDER_IMAGE?=apache/toree-binder
@@ -59,14 +60,14 @@ ENV_OPTS:=APACHE_SPARK_VERSION=$(APACHE_SPARK_VERSION) VERSION=$(VERSION) IS_SNA
 ASSEMBLY_JAR:=toree-assembly-$(VERSION)$(SNAPSHOT).jar
 
 help:
-	@echo '      audit - run audit tools against the source code'
-	@echo '      clean - clean build files'
-	@echo '        dev - starts ipython'
-	@echo '       dist - build a directory with contents to package'
-	@echo '      build - builds assembly'
-	@echo '       test - run all units'
-	@echo '    release - creates packaged distribution'
-	@echo '    jupyter - starts a Jupyter Notebook with Toree installed'
+	@echo '			audit - run audit tools against the source code'
+	@echo '			clean - clean build files'
+	@echo '				dev - starts ipython'
+	@echo '			 dist - build a directory with contents to package'
+	@echo '			build - builds assembly'
+	@echo '			 test - run all units'
+	@echo '		release - creates packaged distribution'
+	@echo '		jupyter - starts a Jupyter Notebook with Toree installed'
 
 build-info:
 	@echo '$(ENV_OPTS) $(VERSION)'
@@ -88,11 +89,39 @@ clean: clean-dist
 	@-docker rm -f examples_image
 	touch $@
 
+.system-test-image:
+	@-docker rm -f system_test_image
+	@docker run -it --user root --name system_test_image \
+		$(IMAGE) bash -c "cd /tmp && \
+			wget http://apache.claz.org/spark/spark-$(APACHE_SPARK_VERSION)/spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
+			tar xzf spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz -C /usr/local && \
+			rm spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
+			cd /usr/local && \
+			rm spark && \
+			ln -s spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6 spark && \
+			echo /usr/local/spark/RELEASE && \
+			\
+			echo \"===> add webupd8 repository...\"	&& \
+			echo \"deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main\" | tee /etc/apt/sources.list.d/webupd8team-java.list	&& \
+			echo \"deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main\" | tee -a /etc/apt/sources.list.d/webupd8team-java.list	&& \
+			apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886	&& \
+			apt-get update && \
+			\
+			echo \"===> install Java\"	&& \
+			echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections	&& \
+			echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections	&& \
+			DEBIAN_FRONTEND=noninteractive	apt-get install -y --force-yes oracle-java8-installer oracle-java8-set-default && \
+			apt-get clean && \
+			update-java-alternatives -s java-8-oracle"
+	@docker commit system_test_image $(SYSTEM_TEST_IMAGE)
+	@-docker rm -f system_test_image
+	touch $@
+
 .binder-image:
 	@docker build --rm -t $(BINDER_IMAGE) .
 
 dev-binder: .binder-image
-	@docker run --rm -it -p 8888:8888  \
+	@docker run --rm -it -p 8888:8888	\
 		-v `pwd`:/home/main/notebooks \
 		--workdir /home/main/notebooks $(BINDER_IMAGE) \
 		/home/main/start-notebook.sh --ip=0.0.0.0
@@ -113,7 +142,7 @@ dev: .example-image dist
 		-e SPARK_OPTS="--master=local[4] --driver-java-options=-agentlib:jdwp=transport=dt_socket,server=y,suspend=$(SUSPEND),address=5005" \
 		-v `pwd`/etc/kernel.json:/usr/local/share/jupyter/kernels/toree/kernel.json \
 		-p $(DEBUG_PORT):5005 -p 8888:8888 \
-		--user=root  $(EXAMPLE_IMAGE) \
+		--user=root	$(EXAMPLE_IMAGE) \
 		bash -c "cp -r /srv/toree/dist/toree/* /usr/local/share/jupyter/kernels/toree/. \
 			&& jupyter notebook --ip=* --no-browser"
 
@@ -172,12 +201,12 @@ endef
 export JUPYTER_COMMAND
 jupyter: DOCKER_WORKDIR=/srv/toree/dist/toree-pip
 jupyter: .example-image pip-release
-	@$(DOCKER) -p 8888:8888  -e SPARK_OPTS="--master=local[4]" --user=root  $(EXAMPLE_IMAGE) bash -c "$$JUPYTER_COMMAND"
+	@$(DOCKER) -p 8888:8888	-e SPARK_OPTS="--master=local[4]" --user=root	$(EXAMPLE_IMAGE) bash -c "$$JUPYTER_COMMAND"
 
 ################################################################################
 # System Tests Using Jupyter Kernel Test (https://github.com/jupyter/jupyter_kernel_test)
 ################################################################################
-system-test: pip-release
+system-test: pip-release .system-test-image
 	@echo '-- Running jupyter kernel tests'
 	@docker run -ti --rm \
 		--name jupyter_kernel_tests \
@@ -185,31 +214,8 @@ system-test: pip-release
 		-v `pwd`/test_toree.py:/srv/test_toree.py \
 		-v `pwd`/scala-interpreter/src/test/resources:/srv/system-test-resources \
 		--user=root \
-		$(IMAGE) \
+		$(SYSTEM_TEST_IMAGE) \
 		bash -c "(cd /srv/system-test-resources && python -m http.server 8000 &) && \
-		\
-		cd /tmp && \
-		wget http://apache.claz.org/spark/spark-$(APACHE_SPARK_VERSION)/spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
-		tar xzf spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz -C /usr/local && \
-		rm spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6.tgz && \
-		cd /usr/local && \
-            rm spark && \
-            ln -s spark-$(APACHE_SPARK_VERSION)-bin-hadoop2.6 spark && \
-            cat /usr/local/spark/RELEASE && \
-        \
-        echo \"===> add webupd8 repository...\"  && \
-        echo \"deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main\" | tee /etc/apt/sources.list.d/webupd8team-java.list  && \
-        echo \"deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main\" | tee -a /etc/apt/sources.list.d/webupd8team-java.list  && \
-        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886  && \
-        apt-get update && \
-        \
-        echo \"===> install Java\"  && \
-        echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections  && \
-        echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections  && \
-        DEBIAN_FRONTEND=noninteractive  apt-get install -y --force-yes oracle-java8-installer oracle-java8-set-default && \
-        apt-get clean && \
-        update-java-alternatives -s java-8-oracle && \
-        \
 		pip install /srv/toree-pip/toree*.tar.gz && jupyter toree install --interpreters=PySpark,Scala,SparkR && \
 		pip install nose jupyter_kernel_test && python /srv/test_toree.py"
 
@@ -236,7 +242,7 @@ dist/toree-pip/toree-$(BASE_VERSION).tar.gz: dist/toree
 	@cp -rf etc/pip_install/* dist/toree-pip/.
 	@$(GEN_PIP_PACKAGE_INFO)
 	@$(DOCKER) --user=root $(IMAGE) python setup.py sdist --dist-dir=.
-	@$(DOCKER) -p 8888:8888 --user=root  $(IMAGE) bash -c	'pip install toree-$(BASE_VERSION).tar.gz && jupyter toree install'
+	@$(DOCKER) -p 8888:8888 --user=root	$(IMAGE) bash -c	'pip install toree-$(BASE_VERSION).tar.gz && jupyter toree install'
 #	-@(cd dist/toree-pip; find . -not -name 'toree-$(VERSION).tar.gz' -maxdepth 1 | xargs rm -r )
 
 pip-release: dist/toree-pip/toree-$(BASE_VERSION).tar.gz
