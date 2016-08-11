@@ -60,7 +60,7 @@ class SparkKernelClient(
    * client.execute("println(1)").onStream(someFunction)
    * </code>
    * someFunction will receive a
-   * {@link org.apache.toree.kernel.protocol.v5.content.StreamContent} message:
+   * `org.apache.toree.kernel.protocol.v5.content.StreamContent` message:
    * <code>
    * {
    *  "name" : "stdout",
@@ -75,7 +75,7 @@ class SparkKernelClient(
    * client.execute("1+1").onResult(someFunction)
    * </code>
    * someFunction will receive a
-   * {@link org.apache.toree.kernel.protocol.v5.content.ExecuteResult} message:
+   * [[org.apache.toree.kernel.protocol.v5.content.ExecuteResult]] message:
    * <code>
    * {
    *  "execution_count" : 1,
@@ -92,7 +92,7 @@ class SparkKernelClient(
    * client.execute("1+1").onResult(someFunction)
    * </code>
    * someFunction will be invoked with an
-   * {@link org.apache.toree.kernel.protocol.v5.content.ExecuteReply} message
+   * [[org.apache.toree.kernel.protocol.v5.content.ExecuteReply]] message
    * containing the error.
    *
    * @param code Scala code
