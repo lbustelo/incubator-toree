@@ -18,7 +18,7 @@
 import unittest
 import jupyter_kernel_test
 
-class ToreeScalaKernelTests(object): #jupyter_kernel_test.KernelTests):
+class ToreeScalaKernelTests(jupyter_kernel_test.KernelTests):
     # Required --------------------------------------
 
     # The name identifying an installed kernel to run the tests against

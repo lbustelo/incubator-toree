@@ -17,7 +17,7 @@
 
 .PHONY: help clean clean-dist build dev test system-test test-travis release pip-release bin-release dev-binder .binder-image audit audit-licenses
 
-BASE_VERSION=0.1.0.dev9
+BASE_VERSION=0.2.0.dev1
 VERSION=$(BASE_VERSION)-incubating
 COMMIT=$(shell git rev-parse --short=12 --verify HEAD)
 ifeq (, $(findstring dev, $(VERSION)))
@@ -216,6 +216,7 @@ system-test: pip-release .system-test-image
 		--user=root \
 		$(SYSTEM_TEST_IMAGE) \
 		bash -c "(cd /srv/system-test-resources && python -m http.server 8000 &) && \
+		rm -rf /home/jovyan/.local/share/jupyter/kernels/apache_toree_scala/ && \
 		pip install /srv/toree-pip/toree*.tar.gz && jupyter toree install --interpreters=PySpark,Scala,SparkR && \
 		pip install nose jupyter_kernel_test && python /srv/test_toree.py"
 

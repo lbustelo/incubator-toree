@@ -135,7 +135,8 @@ object Common {
     pgpPassphrase in Global := Some(gpgPassword.toArray),
     version := buildVersion,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.10.5", "2.11.8"),
+//    crossScalaVersions := Seq("2.10.5", "2.11.8"),
+    crossScalaVersions := Seq("2.11.8"),
     isSnapshot := snapshot,
     updateOptions := updateOptions.value.withCachedResolution(true),
     resolvers ++= Seq(

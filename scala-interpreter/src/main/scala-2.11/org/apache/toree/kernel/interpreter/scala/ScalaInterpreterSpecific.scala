@@ -25,9 +25,9 @@ import org.apache.toree.interpreter.InterpreterTypes.ExecuteOutput
 import org.apache.toree.interpreter.imports.printers.{WrapperConsole, WrapperSystem}
 import org.apache.toree.interpreter.{ExecuteError, ExecuteFailure, Interpreter, Results}
 
-import scala.tools.nsc.interpreter.{IMain, IR, JLineCompletion, JPrintWriter}
+import scala.tools.nsc.interpreter.{InputStream => _, OutputStream => _, _}
 import scala.concurrent.Future
-import scala.tools.nsc.{Global, Settings}
+import scala.tools.nsc.{Global, Settings, util}
 import scala.util.Try
 
 trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpreter =>
@@ -140,8 +140,31 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
     value: Any,
     modifiers: List[String]
   ): Unit = {
+    logger.warn(s"Binding $modifiers $variableName $typeName $value")
     require(iMain != null)
-    iMain.bind(variableName, typeName, value, modifiers)
+    val sIMain = iMain
+
+    val bindRep = new sIMain.ReadEvalPrint()
+    bindRep.compile("""
+                      |import %s
+                      |object %s {
+                      |  var value: %s = _
+                      |  def set(x: Any) = value = x.asInstanceOf[%s]
+                      |}
+                    """.stripMargin.format(typeName, bindRep.evalName, typeName, typeName)
+    )
+    bindRep.callEither("set", value) match {
+      case Left(ex) =>
+        logger.debug("Set failed in bind(%s, %s, %s)".format(variableName, typeName, value))
+        logger.debug(util.stackTraceString(ex))
+        IR.Error
+
+      case Right(_) =>
+        val line = "%sval %s = %s.value".format(modifiers map (_ + " ") mkString, variableName, bindRep.evalPath)
+        logger.debug("Interpreting: " + line)
+        interpret(line)
+    }
+
   }
 
 
@@ -296,7 +319,9 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
   }
 
   override def newSettings(args: List[String]): Settings = {
-    new Settings()
+    val s = new Settings()
+    s.processArguments(args ++ List("-Yscala-repl-debug", "-Yrepl-class-based"), processAll = true)
+    s
   }
 
   protected def interpretAddTask(code: String, silent: Boolean): Future[IR.Result] = {
