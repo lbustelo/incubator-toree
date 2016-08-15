@@ -155,8 +155,8 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
     )
     bindRep.callEither("set", value) match {
       case Left(ex) =>
-        logger.debug("Set failed in bind(%s, %s, %s)".format(variableName, typeName, value))
-        logger.debug(util.stackTraceString(ex))
+        logger.error("Set failed in bind(%s, %s, %s)".format(variableName, typeName, value))
+        logger.error(util.stackTraceString(ex))
         IR.Error
 
       case Right(_) =>
