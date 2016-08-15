@@ -319,14 +319,13 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
 
   override def newSettings(args: List[String]): Settings = {
     val s = new Settings()
-    val path = s"repl_${java.util.UUID.randomUUID().toString().replace(" ", "-")}"
-    val temporaryPath = Files.createTempDirectory(path)
+
+    val dir = System.getProperty("spark.repl.class.outputDir")
 
     s.processArguments(args ++
       List(
-        "-Yscala-repl-debug",
         "-Yrepl-class-based",
-        "-Yrepl-outdir", s"${temporaryPath.toAbsolutePath.toString}"
+        "-Yrepl-outdir", s"${dir}"
     ), processAll = true)
     s
   }

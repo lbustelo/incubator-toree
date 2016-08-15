@@ -295,14 +295,23 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
        logger.debug(s"Binding SQLContext into interpreter as $bindName")
 
       interpret(s"""def ${bindName}: ${classOf[SparkSession].getName} = kernel.sparkSession""")
+
+//      interpret(
+//        s"""
+//           |def $bindName: ${classOf[SparkSession].getName} = {
+//           |   if (org.apache.toree.kernel.interpreter.scala.InterpreterHelper.sparkSession != null) {
+//           |     org.apache.toree.kernel.interpreter.scala.InterpreterHelper.sparkSession
+//           |   } else {
+//           |     val s = org.apache.spark.repl.Main.createSparkSession()
+//           |     org.apache.toree.kernel.interpreter.scala.InterpreterHelper.sparkSession = s
+//           |     s
+//           |   }
+//           |}
+//         """.stripMargin)
+
      }
    }
 
    override def classLoader: ClassLoader = _runtimeClassloader
  }
-
-
-object InterpreterHelper {
-  var kernelLike: KernelLike = _
-}
 
