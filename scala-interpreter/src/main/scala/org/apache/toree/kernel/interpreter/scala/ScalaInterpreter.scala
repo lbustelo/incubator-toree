@@ -83,6 +83,8 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
      start()
      bindKernelVariable(kernel)
+     bindSparkSession()
+     bindSparkContext()
 
      this
    }
@@ -123,7 +125,15 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
    }
 
    protected def bindKernelVariable(kernel: KernelLike): Unit = {
+     logger.warn(s"kernel variable: ${kernel}")
+//     InterpreterHelper.kernelLike = kernel
+//     interpret("import org.apache.toree.kernel.interpreter.scala.InterpreterHelper")
+//     interpret("import org.apache.toree.kernel.api.Kernel")
+//
+//     interpret(s"val kernel = InterpreterHelper.kernelLike.asInstanceOf[org.apache.toree.kernel.api.Kernel]")
+
      doQuietly {
+
        bind(
          "kernel", "org.apache.toree.kernel.api.Kernel",
          kernel, List( """@transient implicit""")
@@ -250,11 +260,11 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
      }
    }
 
-   def bindSparkContext(sparkContext: SparkContext) = {
+   def bindSparkContext() = {
      val bindName = "sc"
 
      doQuietly {
-       logger.debug(s"Binding SparkContext into interpreter as $bindName")
+       logger.info(s"Binding SparkContext into interpreter as $bindName")
       interpret(s"""def ${bindName}: ${classOf[SparkContext].getName} = kernel.sparkContext""")
 
        // NOTE: This is needed because interpreter blows up after adding
@@ -265,14 +275,14 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
        //       inside the interpreter)
        logger.debug("Initializing Spark cluster in interpreter")
 
-       doQuietly {
-         interpret(Seq(
-           "val $toBeNulled = {",
-           "  var $toBeNulled = sc.emptyRDD.collect()",
-           "  $toBeNulled = null",
-           "}"
-         ).mkString("\n").trim())
-       }
+//       doQuietly {
+//         interpret(Seq(
+//           "val $toBeNulled = {",
+//           "  var $toBeNulled = sc.emptyRDD.collect()",
+//           "  $toBeNulled = null",
+//           "}"
+//         ).mkString("\n").trim())
+//       }
      }
    }
 
@@ -290,4 +300,9 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
    override def classLoader: ClassLoader = _runtimeClassloader
  }
+
+
+object InterpreterHelper {
+  var kernelLike: KernelLike = _
+}
 

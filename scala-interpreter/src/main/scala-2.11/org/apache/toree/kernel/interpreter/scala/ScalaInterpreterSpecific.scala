@@ -19,6 +19,7 @@ package org.apache.toree.kernel.interpreter.scala
 
 import java.io._
 import java.net.URL
+import java.nio.file.Files
 
 import org.apache.toree.global.StreamState
 import org.apache.toree.interpreter.InterpreterTypes.ExecuteOutput
@@ -37,9 +38,7 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
   private var jLineCompleter: JLineCompletion = _
 
   def _runtimeClassloader = {
-    if (iMain != null) {
-    iMain.classLoader.getParent.asInstanceOf[reflect.internal.util.ScalaClassLoader.URLClassLoader]
-    } else { null }
+    _thisClassloader
   }
 
   protected def newIMain(settings: Settings, out: JPrintWriter): IMain = {
@@ -145,13 +144,13 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
     val sIMain = iMain
 
     val bindRep = new sIMain.ReadEvalPrint()
+    interpret(s"import $typeName")
     bindRep.compile("""
-                      |import %s
                       |object %s {
                       |  var value: %s = _
                       |  def set(x: Any) = value = x.asInstanceOf[%s]
                       |}
-                    """.stripMargin.format(typeName, bindRep.evalName, typeName, typeName)
+                    """.stripMargin.format(bindRep.evalName, typeName, typeName)
     )
     bindRep.callEither("set", value) match {
       case Left(ex) =>
@@ -320,7 +319,15 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
 
   override def newSettings(args: List[String]): Settings = {
     val s = new Settings()
-    s.processArguments(args ++ List("-Yscala-repl-debug", "-Yrepl-class-based"), processAll = true)
+    val path = s"repl_${java.util.UUID.randomUUID().toString().replace(" ", "-")}"
+    val temporaryPath = Files.createTempDirectory(path)
+
+    s.processArguments(args ++
+      List(
+        "-Yscala-repl-debug",
+        "-Yrepl-class-based",
+        "-Yrepl-outdir", s"${temporaryPath.toAbsolutePath.toString}"
+    ), processAll = true)
     s
   }
 
