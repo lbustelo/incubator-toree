@@ -315,3 +315,24 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
    override def classLoader: ClassLoader = _runtimeClassloader
  }
 
+object ScalaInterpreter {
+
+  /**
+    * Utility method to ensure that a temporary directory for the REPL exists for testing purposes.
+    */
+  def ensureTemporaryFolder(): String = {
+    val outputDir = Option(System.getProperty("spark.repl.class.outputDir")).getOrElse({
+
+      val execUri = System.getenv("SPARK_EXECUTOR_URI")
+      val outputDir: String = Main.outputDir.getAbsolutePath
+      System.setProperty("spark.repl.class.outputDir", outputDir)
+      if (execUri != null) {
+        System.setProperty("spark.executor.uri", execUri)
+      }
+      outputDir
+    })
+    outputDir
+  }
+
+}
+

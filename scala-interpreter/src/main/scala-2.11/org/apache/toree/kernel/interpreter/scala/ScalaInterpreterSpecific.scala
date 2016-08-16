@@ -144,7 +144,7 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
     val sIMain = iMain
 
     val bindRep = new sIMain.ReadEvalPrint()
-    interpret(s"import $typeName")
+    iMain.interpret(s"import $typeName")
     bindRep.compile("""
                       |object %s {
                       |  var value: %s = _
@@ -161,7 +161,7 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
       case Right(_) =>
         val line = "%sval %s = %s.value".format(modifiers map (_ + " ") mkString, variableName, bindRep.evalPath)
         logger.debug("Interpreting: " + line)
-        interpret(line)
+        iMain.interpret(line)
     }
 
   }
@@ -320,12 +320,12 @@ trait ScalaInterpreterSpecific extends SettingsProducerLike { this: ScalaInterpr
   override def newSettings(args: List[String]): Settings = {
     val s = new Settings()
 
-    val dir = System.getProperty("spark.repl.class.outputDir")
+    val dir = ScalaInterpreter.ensureTemporaryFolder()
 
     s.processArguments(args ++
       List(
         "-Yrepl-class-based",
-        "-Yrepl-outdir", s"${dir}"
+        "-Yrepl-outdir", s"$dir"
     ), processAll = true)
     s
   }
