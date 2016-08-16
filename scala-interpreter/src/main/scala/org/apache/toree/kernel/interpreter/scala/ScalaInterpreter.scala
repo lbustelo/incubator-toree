@@ -25,6 +25,8 @@ import java.util.concurrent.ExecutionException
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.repl.Main
+
 import org.apache.toree.interpreter._
 import org.apache.toree.kernel.api.{KernelLike, KernelOptions}
 import org.apache.toree.utils.{MultiOutputStream, TaskManager}
