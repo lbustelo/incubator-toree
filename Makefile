@@ -29,7 +29,7 @@ endif
 
 APACHE_SPARK_VERSION?=2.0.0
 SCALA_VERSION?=2.11
-IMAGE?=jupyter/all-spark-notebook:07a7c4d6d447
+IMAGE?=jupyter/all-spark-notebook:latest
 EXAMPLE_IMAGE?=apache/toree-examples
 SYSTEM_TEST_IMAGE?=apache/toree-systemtest
 GPG?=/usr/local/bin/gpg
@@ -82,11 +82,7 @@ clean: clean-dist
 
 .example-image: EXTRA_CMD?=printf "deb http://cran.rstudio.com/bin/linux/debian jessie-cran3/" >> /etc/apt/sources.list; apt-key adv --keyserver keys.gnupg.net --recv-key 381BA480; apt-get update; pip install jupyter_declarativewidgets==0.4.4; jupyter declarativewidgets install --user; jupyter declarativewidgets activate; pip install jupyter_dashboards; jupyter dashboards install --user; jupyter dashboards activate; apt-get update; apt-get install --yes curl; curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash -; apt-get install --yes nodejs r-base r-base-dev; npm install -g bower;
 .example-image:
-	@-docker rm -f examples_image
-	@docker run -it --user root --name examples_image \
-		$(IMAGE) bash -c '$(EXTRA_CMD)'
-	@docker commit examples_image $(EXAMPLE_IMAGE)
-	@-docker rm -f examples_image
+	@docker build -f Dockerfile.example_image -t $(EXAMPLE_IMAGE) .
 	touch $@
 
 .system-test-image:
